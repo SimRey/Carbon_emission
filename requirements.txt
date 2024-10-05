@@ -3,3 +3,4 @@ pandas
 numpy
 joblib
 torch
+scikit-learn
