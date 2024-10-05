@@ -4,11 +4,31 @@ import numpy as np
 import joblib
 import os
 
-from NN import *
+import torch
+import torch.nn as nn
+
+class Model(nn.Module):
+    def __init__(self, in_features, out_features, hidden_layer_sizes):
+        super().__init__()
+        layers = []
+        layers.append(nn.Linear(in_features, hidden_layer_sizes[0]))
+        layers.append(nn.SiLU())  # Adding ReLU activation function
+        
+        for i in range(len(hidden_layer_sizes) - 1):
+            layers.append(nn.Linear(hidden_layer_sizes[i], hidden_layer_sizes[i+1]))
+            layers.append(nn.SiLU())
+            layers.append(nn.Dropout(0.3))
+        
+        layers.append(nn.Linear(hidden_layer_sizes[-1], out_features))
+        
+        self.model = nn.Sequential(*layers)
+        
+    def forward(self, x):
+        return self.model(x)
 
 # Initialize and load the model
 model = Model(18, 1, [64, 32, 16])  # Make sure the dimensions match your architecture
-model = load_model(model, "model.pth")  # Adjust this function call based on your implementation
+model.load_state_dict(torch.load("model.pth"))
 
 # Define the path where the label encoders are saved
 label_encoders_path = 'label_encoders'  # Adjust path if necessary
